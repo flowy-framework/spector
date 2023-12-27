@@ -23,10 +23,6 @@ jobs:
             lint: lint
             coverage: true
 
-          # Oldest supported versions
-          - pair:
-              elixir: "1.9.4"
-              otp: "20.3.8"
     steps:
       - name: Check out this repository
         uses: actions/checkout@v3
