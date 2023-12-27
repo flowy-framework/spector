@@ -11,7 +11,7 @@
 
 <p align="center">
   <a href="#">
-    <img alt="Build Status" src="https://github.com/flowy-framework/spector/actions/workflows/test.yml/badge.svg">
+    <img alt="Build Status" src="https://github.com/flowy-framework/spector/actions/workflows/main.yml/badge.svg">
   </a>
   <a href="https://codecov.io/gh/flowy-framework/flowy">
     <img src="https://codecov.io/gh/flowy-framework/spector/graph/badge.svg?token=5FRGCVVJSP"/>
