@@ -13,11 +13,11 @@
   <a href="#">
     <img alt="Build Status" src="https://github.com/flowy-framework/spector/actions/workflows/main.yml/badge.svg">
   </a>
-  <a href="https://codecov.io/gh/flowy-framework/flowy">
-    <img src="https://codecov.io/gh/flowy-framework/spector/graph/badge.svg?token=5FRGCVVJSP"/>
+  <a href="https://codecov.io/gh/flowy-framework/spector">
+    <img src="https://codecov.io/gh/flowy-framework/spector/graph/badge.svg?token=UMpPVA0S3j"/>
   </a>
-  <a href="https://github.com/flowy-framework/flowy">
-    <img src="https://img.shields.io/github/last-commit/flowy-framework/flowy.svg"/>
+  <a href="https://github.com/flowy-framework/spector">
+    <img src="https://img.shields.io/github/last-commit/flowy-framework/spector.svg"/>
   </a>
 </p>
 
