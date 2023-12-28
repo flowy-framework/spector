@@ -54,14 +54,13 @@ defmodule Spector.MixProject do
   defp docs do
     [
       main: "Spector",
+      logo: "assets/logo-small.png",
       extras: [
-        "CHANGELOG.md": [title: "Changelog"],
         "LICENSE.md": [title: "License"]
       ],
       source_ref: "v#{@version}",
       source_url: @repo_url,
-      formatters: ["html"],
-      skip_undefined_reference_warnings_on: ["CHANGELOG.md"]
+      formatters: ["html"]
     ]
   end
 end

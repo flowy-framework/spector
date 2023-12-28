@@ -34,14 +34,14 @@ A definition is a map specifying how the specs you want
 to validate should look like:
 
 ```elixir
-definition = %{
-  connections: %{
-    type: :non_neg_integer,
-    default: 5
+schema = %{
+  "connections" => %{
+    "type" => "non_neg_integer",
+    "default" => 5
   },
-  url: %{
-    type: :string,
-    required: true
+  "url" %{
+    "type" => "string",
+    "required" => true
   }
 }
 ```
@@ -49,9 +49,9 @@ definition = %{
 Now you can validate options through `Spector.validate/2`:
 
 ```elixir
-options = %{url: "https://example.com"}
+specs = %{"url" => "https://example.com"}
 
-Spector.validate(options, definition)
+Spector.validate(specs, schema)
 #=> {:ok, %{url: "https://example.com", connections: 5}}
 ```
 

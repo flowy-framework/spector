@@ -5,10 +5,13 @@ defmodule Spector do
 
   alias Spector.ValidationError
 
-  def validate(data, schema) when is_map(data) do
+  @spec validate(map(), map()) :: {:ok, map()} | {:error, ValidationError.t()}
+  def validate(data, schema) when is_map(data) and is_map(schema) do
     validate_map(data, transform_schema(schema))
   end
 
+  @spec validate(any(), any(), :json | :yaml) ::
+          {:error, Spector.ValidationError.t()} | {:ok, map()}
   def validate(data, schema, :yaml) do
     schema =
       schema
