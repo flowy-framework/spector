@@ -65,6 +65,14 @@ jobs:
 
       - run: mix test
         if: ${{ !matrix.coverage }}
+      
+      - name: Run tests
+        run: mix coveralls.json
+        env:
+          MIX_ENV: test
 
-      - run: mix coveralls.github
-        if: ${{ matrix.coverage }}
+      - name: Upload to Codecov
+        run: |
+          curl -Os https://uploader.codecov.io/latest/linux/codecov
+          chmod +x codecov
+          ./codecov

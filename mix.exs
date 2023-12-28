@@ -38,7 +38,8 @@ defmodule Spector.MixProject do
       # excoverals uses CAStore to push results via HTTP.
       {:castore, "~> 1.0.0", only: :test},
       {:ex_doc, ">= 0.19.0", only: :dev},
-      {:excoveralls, "~> 0.18.0", only: :test}
+      {:excoveralls, "~> 0.18.0", only: :test},
+      {:yaml_elixir, "~> 2.9"}
     ]
   end
 
