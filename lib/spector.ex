@@ -71,11 +71,48 @@ defmodule Spector do
 
   def schema(), do: @schema
 
+  def custom_types(), do: Application.get_env(:spector, :custom_types, %{})
+
+  def custom_type(type) do
+    custom_types()
+    |> Map.get(type)
+  end
+
+  @doc """
+  Validates the given `data` against the given `schema`.
+
+  ## Example:
+
+      iex> Spector.validate(%{"foo" => 1}, %{"foo" => %{"type" => "map"}})
+      {:error,
+       %Spector.ValidationError{
+         __exception__: true,
+         key: "foo",
+         keys_path: [],
+         message: "invalid value for \"foo\" key: expected map, got: 1",
+         value: 1
+       }}
+  """
   @spec validate(map(), map()) :: {:ok, map()} | {:error, ValidationError.t()}
   def validate(data, schema) when is_map(data) and is_map(schema) do
     validate_map(data, transform_schema(schema))
   end
 
+  @doc """
+  Validates the given `data` against the given `schema` in the given `format`.
+
+  ## Example:
+
+      iex> Spector.validate(%{"foo" => 1}, %{"foo" => %{"type" => "map"}}, :json)
+      {:error,
+       %Spector.ValidationError{
+         __exception__: true,
+         key: "foo",
+         keys_path: [],
+         message: "invalid value for \"foo\" key: expected map, got: 1",
+         value: 1
+       }}
+  """
   @spec validate(any(), any(), :json | :yaml) ::
           {:error, Spector.ValidationError.t()} | {:ok, map()}
   def validate(data, schema, :yaml) do
@@ -136,7 +173,12 @@ defmodule Spector do
       %{required: true} ->
         if Map.has_key?(opts, key),
           do: true,
-          else: {:error, "#{key} is required but not provided"}
+          else:
+            error_tuple(
+              key,
+              nil,
+              "#{render_key(key)} is required but not provided"
+            )
 
       _ ->
         true
@@ -174,7 +216,7 @@ defmodule Spector do
         error_tuple(
           key,
           value,
-          "invalid value for #{key}: expected float, got: #{inspect(value)}"
+          "invalid value for #{render_key(key)}: expected float, got: #{inspect(value)}"
         )
     end
   end
@@ -193,7 +235,7 @@ defmodule Spector do
         error_tuple(
           key,
           value,
-          "invalid value for #{key}: expected integer, got: #{inspect(value)}"
+          "invalid value for #{render_key(key)}: expected integer, got: #{inspect(value)}"
         )
     end
   end
@@ -205,11 +247,17 @@ defmodule Spector do
   defp validate_type(value, "map", _key) when is_map(value), do: true
 
   defp validate_type(value, type, key) do
-    error_tuple(
-      key,
-      value,
-      "invalid value for #{key}: expected #{type}, got: #{inspect(value)}"
-    )
+    case custom_type(type) do
+      nil ->
+        error_tuple(
+          key,
+          value,
+          "invalid value for #{render_key(key)}: expected #{type}, got: #{inspect(value)}"
+        )
+
+      validator ->
+        validator.(value)
+    end
   end
 
   defp handle_missing_key(_data, key, opts, acc) do
@@ -246,4 +294,6 @@ defmodule Spector do
   defp error_tuple(key, value, message) do
     {:error, %ValidationError{key: key, message: message, value: value}}
   end
+
+  defp render_key(key), do: inspect(key) <> " key"
 end

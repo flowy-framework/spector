@@ -2,6 +2,10 @@ defmodule SpectorTest do
   use ExUnit.Case, async: true
 
   describe "validate/2" do
+    test "custom_types/0" do
+      assert %{"custom" => _} = Spector.custom_types()
+    end
+
     test "validate/2 returns {:ok, %{}} when given an empty map and an empty schema" do
       assert {:ok, %{}} = Spector.validate(%{}, %{})
     end
@@ -17,7 +21,7 @@ defmodule SpectorTest do
                 __exception__: true,
                 key: "foo",
                 keys_path: [],
-                message: "invalid value for foo: expected map, got: 1",
+                message: "invalid value for \"foo\" key: expected map, got: 1",
                 value: 1
               }} =
                Spector.validate(%{"foo" => 1}, %{"foo" => %{"type" => "map"}})
@@ -41,6 +45,21 @@ defmodule SpectorTest do
                Spector.validate(%{"foo" => "2.3"}, %{"foo" => %{"type" => "float"}})
     end
 
+    test "validate/2 with custom types" do
+      assert {:ok, %{"foo" => "valid"}} =
+               Spector.validate(%{"foo" => "valid"}, %{"foo" => %{"type" => "custom"}})
+
+      assert {:error,
+              %Spector.ValidationError{
+                __exception__: true,
+                key: nil,
+                keys_path: [],
+                message: "invalid value",
+                value: "invalid"
+              }} =
+               Spector.validate(%{"foo" => "invalid"}, %{"foo" => %{"type" => "custom"}})
+    end
+
     test "validate/2 returns {:ok, %{}} with valid non_neg_integer" do
       assert {:ok, %{"foo" => 2}} =
                Spector.validate(%{"foo" => 2}, %{"foo" => %{"type" => "non_neg_integer"}})
@@ -51,7 +70,7 @@ defmodule SpectorTest do
                  __exception__: true,
                  key: "foo",
                  keys_path: [],
-                 message: "invalid value for foo: expected non_neg_integer, got: -2",
+                 message: "invalid value for \"foo\" key: expected non_neg_integer, got: -2",
                  value: -2
                }
              } =
@@ -72,7 +91,7 @@ defmodule SpectorTest do
     test "validate/2 returns {:error, %{}} with invalid values" do
       assert {:error,
               %Spector.ValidationError{
-                message: "invalid value for foo: expected integer, got: \"not_a_number\"",
+                message: "invalid value for \"foo\" key: expected integer, got: \"not_a_number\"",
                 key: "foo",
                 value: "not_a_number",
                 keys_path: []
@@ -97,7 +116,7 @@ defmodule SpectorTest do
                %Spector.ValidationError{
                  key: "bar",
                  keys_path: [],
-                 message: "invalid value for bar: expected string, got: 1234",
+                 message: "invalid value for \"bar\" key: expected string, got: 1234",
                  value: 1234,
                  __exception__: true
                }
