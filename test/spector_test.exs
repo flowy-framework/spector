@@ -28,6 +28,36 @@ defmodule SpectorTest do
                Spector.validate(%{"foo" => "valid"}, %{"foo" => %{"type" => "string"}})
     end
 
+    test "validate/2 returns {:ok, %{}} with valid boolean" do
+      assert {:ok, %{"foo" => true}} =
+               Spector.validate(%{"foo" => true}, %{"foo" => %{"type" => "boolean"}})
+    end
+
+    test "validate/2 returns {:ok, %{}} with valid float" do
+      assert {:ok, %{"foo" => 2.3}} =
+               Spector.validate(%{"foo" => 2.3}, %{"foo" => %{"type" => "float"}})
+
+      assert {:ok, %{"foo" => "2.3"}} =
+               Spector.validate(%{"foo" => "2.3"}, %{"foo" => %{"type" => "float"}})
+    end
+
+    test "validate/2 returns {:ok, %{}} with valid non_neg_integer" do
+      assert {:ok, %{"foo" => 2}} =
+               Spector.validate(%{"foo" => 2}, %{"foo" => %{"type" => "non_neg_integer"}})
+
+      assert {
+               :error,
+               %Spector.ValidationError{
+                 __exception__: true,
+                 key: "foo",
+                 keys_path: [],
+                 message: "invalid value for foo: expected non_neg_integer, got: -2",
+                 value: -2
+               }
+             } =
+               Spector.validate(%{"foo" => -2}, %{"foo" => %{"type" => "non_neg_integer"}})
+    end
+
     test "validate/2 returns {:error, %{}} with not required value provided" do
       assert {:error,
               %Spector.ValidationError{
@@ -54,7 +84,7 @@ defmodule SpectorTest do
       schema = %{"foo" => %{"type" => "map", "keys" => %{"bar" => %{"type" => "string"}}}}
       data = %{"foo" => %{"bar" => "hello"}}
 
-      assert {:ok, data} =
+      assert {:ok, ^data} =
                Spector.validate(data, schema)
     end
 

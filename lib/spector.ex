@@ -1,9 +1,75 @@
 defmodule Spector do
   @moduledoc """
   A tiny library for validating and documenting specs.
+
+  Spector allows developers to create schemas using a
+  pre-defined set of options and types. The main benefits are:
+
+    * A single unified way to define simple schema
+    * Specs validation against schemas
+
+  ## Schema Options
+
+  These are the options supported in a *schema*. They are what
+  defines the validation for the items in the given schema.
+
+  ## Types
+
+    * `:list` - A list.
+
+    * `:non_empty_list` - A non-empty list.
+
+    * `:map` - A map consisting of `string` keys.
+      Keys can be specified using the `keys` option.
+
+    * `:string` - A string.
+
+    * `:boolean` - A boolean.
+
+    * `:integer` - An integer.
+
+    * `:non_neg_integer` - A non-negative integer.
+
+    * `:float` - A float.
   """
 
+  @schema %{
+    "type" => %{
+      "type" => "string",
+      "default" => "string",
+      "doc" => "The type of the option item."
+    },
+    "required" => %{
+      "type" => "boolean",
+      "default" => false,
+      "doc" => "Defines if the option item is required."
+    },
+    "default" => %{
+      "type" => "any",
+      "doc" => """
+      The default value for the option item if that option is not specified. This value
+      is *validated* according to the given `:type`. This means that you cannot
+      have, for example, `type: :integer` and use `default: "a string"`.
+      """
+    },
+    "keys" => %{
+      "type" => "list",
+      "doc" => """
+      Available for types `:list`, `:non_empty_list`, and `:map`,
+      it defines which set of keys are accepted for the option item. The value of the
+      `:keys` option is a schema itself. For example: `keys: [foo: [type: :atom]]`.
+      """,
+      "keys" => &__MODULE__.schema/0
+    },
+    "doc" => %{
+      "type" => "string",
+      "doc" => "The documentation for the option item."
+    }
+  }
+
   alias Spector.ValidationError
+
+  def schema(), do: @schema
 
   @spec validate(map(), map()) :: {:ok, map()} | {:error, ValidationError.t()}
   def validate(data, schema) when is_map(data) and is_map(schema) do
@@ -95,6 +161,28 @@ defmodule Spector do
   # defp validate_required(_data, _key, _), do: true
 
   defp validate_type(_value, nil, _key), do: true
+
+  defp validate_type(value, "float", _key) when is_float(value),
+    do: true
+
+  defp validate_type(value, "float", key) when is_binary(value) do
+    case Float.parse(value) do
+      {_float, ""} ->
+        true
+
+      _ ->
+        error_tuple(
+          key,
+          value,
+          "invalid value for #{key}: expected float, got: #{inspect(value)}"
+        )
+    end
+  end
+
+  defp validate_type(value, "non_neg_integer", _key) when is_integer(value) and value >= 0,
+    do: true
+
+  defp validate_type(value, "boolean", _key) when is_boolean(value), do: true
 
   defp validate_type(value, "integer", key) when is_binary(value) do
     case Integer.parse(value) do
