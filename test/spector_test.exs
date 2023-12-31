@@ -32,6 +32,21 @@ defmodule SpectorTest do
                Spector.validate(%{"foo" => "valid"}, %{"foo" => %{"type" => "string"}})
     end
 
+    @tag :list
+    test "validate/2 returns {:ok, %{}} with valid list" do
+      schema = %{
+        "foo" => %{"type" => "string"},
+        "names" => %{
+          "type" => "list",
+          "required" => true,
+          "keys" => %{"name" => %{"type" => "string"}}
+        }
+      }
+
+      assert {:ok, %{"foo" => "valid", "names" => [%{"name" => "peter"}, %{"name" => "pan"}]}} =
+               Spector.validate(%{"foo" => "valid", "names" => [%{"name" => "peter"}, %{"name" => "pan"}]}, schema)
+    end
+
     test "validate/2 returns {:ok, %{}} with valid boolean" do
       assert {:ok, %{"foo" => true}} =
                Spector.validate(%{"foo" => true}, %{"foo" => %{"type" => "boolean"}})

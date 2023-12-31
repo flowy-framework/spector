@@ -246,6 +246,8 @@ defmodule Spector do
 
   defp validate_type(value, "map", _key) when is_map(value), do: true
 
+  defp validate_type(value, "list", _key) when is_list(value), do: true
+
   defp validate_type(value, type, key) do
     case custom_type(type) do
       nil ->
