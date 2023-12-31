@@ -144,6 +144,10 @@ defmodule Spector do
     end)
   end
 
+  defp validate_key(_data, _key, _opts, {:error, error}) do
+    {:error, error}
+  end
+
   defp validate_key(data, key, opts, {:ok, acc}) do
     case Map.fetch(data, key) do
       {:ok, value} -> validate_value(data, key, value, opts, acc)

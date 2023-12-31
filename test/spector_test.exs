@@ -44,7 +44,36 @@ defmodule SpectorTest do
       }
 
       assert {:ok, %{"foo" => "valid", "names" => [%{"name" => "peter"}, %{"name" => "pan"}]}} =
-               Spector.validate(%{"foo" => "valid", "names" => [%{"name" => "peter"}, %{"name" => "pan"}]}, schema)
+               Spector.validate(
+                 %{"foo" => "valid", "names" => [%{"name" => "peter"}, %{"name" => "pan"}]},
+                 schema
+               )
+    end
+
+    @tag :list
+    test "validate/2 returns {:error, %{}} with valid list" do
+      schema = %{
+        "foo" => %{"type" => "string"},
+        "bar" => %{"type" => "string", "required" => true},
+        "names" => %{
+          "type" => "list",
+          "required" => true,
+          "keys" => %{"name" => %{"type" => "string"}}
+        }
+      }
+
+      assert {:error,
+              %Spector.ValidationError{
+                __exception__: true,
+                key: "bar",
+                keys_path: [],
+                message: "bar is required but not provided",
+                value: nil
+              }} =
+               Spector.validate(
+                 %{"foo" => "valid", "names" => [%{"name" => "peter"}, %{"name" => "pan"}]},
+                 schema
+               )
     end
 
     test "validate/2 returns {:ok, %{}} with valid boolean" do
